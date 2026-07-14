@@ -1,0 +1,19 @@
+#!/bin/sh
+# Install everything in the Brewfile. Re-runs automatically whenever the
+# Brewfile changes, because its hash is embedded in this script below.
+#
+# Brewfile hash: {{ include "Brewfile" | sha256sum }}
+set -eu
+
+# Ensure brew is on PATH (this script may run in a bare environment).
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+
+BREWFILE="{{ .chezmoi.sourceDir }}/Brewfile"
+
+echo "==> brew bundle from $BREWFILE"
+brew bundle --file="$BREWFILE"
+echo "==> brew bundle complete."

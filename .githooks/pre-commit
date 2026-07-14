@@ -1,0 +1,17 @@
+#!/bin/sh
+# Block commits that contain secrets. Enable with:
+#   git config core.hooksPath .githooks
+set -eu
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "gitleaks not installed (brew install gitleaks). Skipping secret scan." >&2
+  exit 0
+fi
+
+echo "==> gitleaks: scanning staged changes for secrets..."
+if ! gitleaks protect --staged --redact --verbose; then
+  echo "" >&2
+  echo "!! gitleaks found a potential secret in your staged changes. Commit blocked." >&2
+  echo "   Remove the secret (use ~/.config/rafmac/env.sh for real values) and retry." >&2
+  exit 1
+fi

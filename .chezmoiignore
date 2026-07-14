@@ -1,0 +1,10 @@
+# Paths chezmoi must NEVER write into $HOME.
+
+# Real secrets file — created manually on each machine, never managed.
+.config/rafmac/env.sh
+
+# Repo meta that shouldn't be applied to the home directory.
+README.md
+Brewfile
+.githooks
+.gitleaks.toml

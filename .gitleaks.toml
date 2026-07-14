@@ -1,0 +1,9 @@
+# gitleaks config. Extends the default ruleset.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Files that are templates/examples, not real secrets."
+paths = [
+  '''dot_config/rafmac/env\.sh\.example''',
+]

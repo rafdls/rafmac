@@ -1,0 +1,73 @@
+#!/bin/sh
+# Finish Flutter + Android SDK setup: install cmdline-tools, accept licenses,
+# pull platform-tools / emulator / a system image, and create a default AVD.
+# Also wires up the AI instruction files. Runs once.
+set -eu
+
+# Make brew tools available.
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+
+# ---- AI instruction files ------------------------------------------------
+# Symlink global Claude instructions into place (idempotent).
+mkdir -p "$HOME/.claude"
+if [ ! -e "$HOME/.claude/CLAUDE.md" ]; then
+  ln -s "$HOME/.config/ai/CLAUDE.md" "$HOME/.claude/CLAUDE.md" || true
+  echo "==> Linked ~/.claude/CLAUDE.md"
+fi
+
+{{ if .install_android_sdk -}}
+# ---- Android SDK ---------------------------------------------------------
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+
+SDKMANAGER=""
+if [ -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
+  SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+fi
+
+if [ -z "$SDKMANAGER" ]; then
+  echo "==> Android cmdline-tools not found."
+  echo "    Open Android Studio once to install the SDK, or install cmdline-tools"
+  echo "    via Android Studio > Settings > Languages & Frameworks > Android SDK >"
+  echo "    SDK Tools > 'Android SDK Command-line Tools', then re-run:"
+  echo "      chezmoi state delete-bucket --bucket=scriptState && chezmoi apply"
+else
+  echo "==> Accepting Android SDK licenses..."
+  yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+
+  echo "==> Installing platform-tools, emulator, and a system image..."
+  "$SDKMANAGER" "platform-tools" "emulator" \
+    "platforms;android-34" \
+    "system-images;android-34;google_apis;arm64-v8a" || true
+
+  # Create a default AVD if none exists.
+  AVDMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager"
+  if [ -x "$AVDMANAGER" ] && ! "$AVDMANAGER" list avd | grep -q "pixel_default"; then
+    echo "==> Creating default AVD 'pixel_default'..."
+    echo "no" | "$AVDMANAGER" create avd \
+      -n pixel_default \
+      -k "system-images;android-34;google_apis;arm64-v8a" \
+      -d pixel_6 || true
+  fi
+fi
+{{- else -}}
+echo "==> install_android_sdk is false, skipping Android SDK setup."
+{{- end }}
+
+{{ if .install_flutter -}}
+# ---- Flutter -------------------------------------------------------------
+if command -v flutter >/dev/null 2>&1; then
+  echo "==> Running flutter doctor (informational)..."
+  flutter doctor || true
+else
+  echo "==> flutter not on PATH yet; run 'flutter doctor' after opening a new shell."
+fi
+{{- else -}}
+echo "==> install_flutter is false, skipping Flutter setup."
+{{- end }}
+
+echo "==> Post-install script complete."

@@ -1,0 +1,46 @@
+#!/bin/sh
+# Print the manual steps that can't be safely automated (need Apple ID,
+# interactive logins, or app-specific installers). Runs once.
+set -eu
+
+cat <<'EOF'
+
+================================================================================
+  rafmac — MANUAL STEPS REMAINING
+================================================================================
+
+1. SECRETS
+   cp ~/.config/rafmac/env.sh.example ~/.config/rafmac/env.sh
+   $EDITOR ~/.config/rafmac/env.sh        # paste values from your password manager
+
+2. GIT HOOKS (enable the gitleaks secret scanner)
+   chezmoi cd
+   git config core.hooksPath .githooks
+
+3. APP STORE / XCODE  (needs your Apple ID)
+   - Open the App Store app and sign in.
+   - Install Xcode (App Store, or: `xcodes install --latest` after `brew install xcodesorg/made/xcodes`).
+   - Then:
+       sudo xcodebuild -license accept
+       sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+       xcodebuild -runFirstLaunch
+       xcrun simctl list                  # confirm iOS simulators are available
+   - Optional: uncomment the `mas "Xcode"` line in the Brewfile to track it.
+
+4. AI CODING AGENTS
+   - Claude Code: install per https://claude.com/claude-code ; instructions are
+     linked at ~/.claude/CLAUDE.md (from ~/.config/ai/CLAUDE.md).
+   - Pi (coding agent): install per its docs, then point it at
+     ~/.config/ai/pi-instructions.md.
+
+5. ANDROID
+   - If Android SDK setup was skipped, open Android Studio once to install the SDK,
+     then re-run: chezmoi apply
+   - Verify: `adb --version`, `emulator -list-avds`, `flutter doctor`
+
+6. iTERM2 / ARC / VS CODE
+   - Set iTerm2 as needed (font: JetBrainsMono Nerd Font is installed).
+   - Sign into Arc and VS Code (settings sync) if you use them.
+
+================================================================================
+EOF

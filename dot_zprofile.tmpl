@@ -1,0 +1,24 @@
+# ~/.zprofile — login shell setup (runs before .zshrc).
+# PATH and environment that should exist for all shells go here.
+
+# Homebrew (Apple Silicon default prefix; falls back for Intel).
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+
+# ---- Android SDK ---------------------------------------------------------
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+export PATH="$ANDROID_HOME/platform-tools:$PATH"
+export PATH="$ANDROID_HOME/emulator:$PATH"
+export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+
+# ---- Flutter -------------------------------------------------------------
+# Homebrew's flutter cask puts the binary on PATH already; this is a fallback
+# if you ever install Flutter manually under ~/development/flutter.
+[ -d "$HOME/development/flutter/bin" ] && export PATH="$HOME/development/flutter/bin:$PATH"
+
+# ---- Personal bin --------------------------------------------------------
+[ -d "$HOME/.local/bin" ] && export PATH="$HOME/.local/bin:$PATH"

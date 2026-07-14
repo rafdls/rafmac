@@ -1,0 +1,22 @@
+[user]
+    name = {{ .git_name }}
+    email = {{ .git_email }}
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = true
+
+[core]
+    editor = nvim
+    excludesfile = ~/.gitignore_global
+
+[color]
+    ui = auto
+
+[alias]
+    st = status
+    co = checkout
+    br = branch
+    lg = log --oneline --graph --decorate -20

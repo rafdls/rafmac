@@ -1,0 +1,35 @@
+# ~/.zshrc — interactive shell config.
+
+# ---- oh-my-zsh -----------------------------------------------------------
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="robbyrussell"
+plugins=(git z fzf)
+[ -s "$ZSH/oh-my-zsh.sh" ] && source "$ZSH/oh-my-zsh.sh"
+
+# ---- Secrets -------------------------------------------------------------
+# Real tokens/keys live here — gitignored, never committed. See README.
+[ -f "$HOME/.config/rafmac/env.sh" ] && source "$HOME/.config/rafmac/env.sh"
+
+# ---- Editor --------------------------------------------------------------
+export EDITOR="nvim"
+export VISUAL="nvim"
+
+# ---- Aliases -------------------------------------------------------------
+alias vim="nvim"
+alias vi="nvim"
+alias ll="ls -lah"
+alias gs="git status"
+alias gd="git diff"
+alias t="tmux"
+alias ta="tmux attach"
+# Pull the latest dotfiles and re-apply them.
+alias dotpull="chezmoi update"
+# Jump into the dotfiles source repo.
+alias dots="chezmoi cd"
+
+# ---- fzf -----------------------------------------------------------------
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# ---- Local overrides -----------------------------------------------------
+# Machine-specific tweaks you don't want tracked.
+[ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"

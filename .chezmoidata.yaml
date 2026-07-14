@@ -1,0 +1,9 @@
+# Feature toggles read by the run_* provisioning scripts and templates.
+# Flip these to false to skip a chunk of setup on a given machine.
+install_flutter: true
+install_android_sdk: true
+install_omzsh: true
+
+# Identity used to render dot_gitconfig.tmpl. Change these to your own.
+git_name: "Rafael Delos Santos"
+git_email: "rkdelossantos@gmail.com"
