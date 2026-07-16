@@ -5,6 +5,7 @@
 tap "homebrew/bundle"
 
 # ---- CLI tools -----------------------------------------------------------
+brew "chezmoi"                  # dotfile manager — needed for diff/apply/update
 brew "git"
 brew "neovim"
 brew "tmux"

@@ -40,6 +40,12 @@ git config core.hooksPath .githooks
 
 ## Common commands
 
+> These all require the `chezmoi` binary on your PATH. The fresh-machine
+> bootstrap above only downloads a throwaway copy to run `init --apply` once;
+> the persistent install comes from the `Brewfile` (`brew "chezmoi"`), so it's
+> available after the first `brew bundle`. Without chezmoi you'd have to copy
+> files by hand, and templated `.tmpl` files wouldn't render.
+
 ```sh
 chezmoi diff          # preview what apply would change
 chezmoi apply         # write dotfiles to $HOME, run changed run_ scripts
