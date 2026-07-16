@@ -16,7 +16,11 @@
     ui = auto
 
 [alias]
-    st = status
-    co = checkout
-    br = branch
-    lg = log --oneline --graph --decorate -20
+	co = checkout
+	st = status
+	br = branch
+	ci = commit
+	purr = pull --rebase
+	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+	l = lg
+
