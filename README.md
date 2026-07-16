@@ -82,6 +82,71 @@ git add -A && git commit -m "update nvim config" && git push
 
 ---
 
+## chezmoi cheat sheet
+
+**Mental model:** there are two copies of every file — the **source** (this repo) and
+the **target** (`$HOME`). chezmoi generates the target from the source. Edit one side,
+then sync. Golden loop: **edit → apply (or re-add) → commit.**
+
+### Setup / sync
+
+```sh
+# Fresh machine: clone repo, register as source, and apply in one shot.
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply <your-github-user>/rafmac
+
+# Point chezmoi at this repo if it's already cloned locally.
+chezmoi init --source ~/Projects/rafmac
+
+# Pull latest from git AND apply, in one step (use on any machine).
+chezmoi update
+```
+
+### The two directions
+
+```sh
+# Repo  ->  $HOME : write your dotfiles out, and run any changed run_ scripts.
+chezmoi apply
+
+# $HOME ->  Repo  : pull a file you edited live back into the repo.
+chezmoi re-add                 # re-add ALL managed files that changed
+chezmoi re-add ~/.tmux.conf    # or just one
+```
+
+### Everyday commands
+
+```sh
+chezmoi diff                   # preview what apply WOULD change (changes nothing)
+chezmoi edit ~/.zshrc          # edit the SOURCE of a managed file, safely
+chezmoi add ~/.config/foo/bar  # start tracking a NEW dotfile (auto dot_ naming)
+chezmoi forget ~/.zshrc        # stop managing a file (leaves $HOME copy alone)
+chezmoi managed                # list every path chezmoi manages
+chezmoi cd                     # drop into the source repo (for git add/commit/push)
+chezmoi execute-template < dot_gitconfig.tmpl   # see a .tmpl rendered
+```
+
+### Commit after changes
+
+```sh
+chezmoi cd
+git add -A && git commit -m "update nvim config" && git push
+exit                           # leave the chezmoi cd subshell
+```
+
+### Re-running a run_ script
+
+`run_once_*` scripts run only once per machine. To force one to run again (e.g. after
+fixing the Android SDK step), clear chezmoi's script state, then apply:
+
+```sh
+chezmoi state delete-bucket --bucket=scriptState
+chezmoi apply
+```
+
+`run_onchange_*` (the Brewfile installer) re-runs automatically whenever its content
+changes — just edit the `Brewfile` and `chezmoi apply`.
+
+---
+
 ## Layout
 
 ```
