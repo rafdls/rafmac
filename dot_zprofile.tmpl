@@ -8,6 +8,16 @@ elif [ -x /usr/local/bin/brew ]; then
   eval "$(/usr/local/bin/brew shellenv)"
 fi
 
+# ---- Java ----------------------------------------------------------------
+# Use the JDK bundled with Android Studio (JBR) so Gradle/Flutter Android
+# builds use the same Java the IDE does. Falls back to /usr/libexec/java_home.
+if [ -x "/Applications/Android Studio.app/Contents/jbr/Contents/Home/bin/java" ]; then
+  export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+elif [ -x /usr/libexec/java_home ]; then
+  export JAVA_HOME="$(/usr/libexec/java_home 2>/dev/null)"
+fi
+[ -n "$JAVA_HOME" ] && export PATH="$JAVA_HOME/bin:$PATH"
+
 # ---- Android SDK ---------------------------------------------------------
 export ANDROID_HOME="$HOME/Library/Android/sdk"
 export ANDROID_SDK_ROOT="$ANDROID_HOME"
