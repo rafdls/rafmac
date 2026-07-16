@@ -38,8 +38,11 @@ cat <<'EOF'
      then re-run: chezmoi apply
    - Verify: `adb --version`, `emulator -list-avds`, `flutter doctor`
 
-6. iTERM2 / ARC / VS CODE
-   - Set iTerm2 as needed (font: JetBrainsMono Nerd Font is installed).
+6. TERMINAL / ARC / VS CODE
+   - Ghostty: config is managed (~/.config/ghostty/config); font is set.
+   - iTerm2: font is set automatically on existing profiles by a run_once
+     script. If you'd added iTerm2 while it was running, quit it and run
+     `chezmoi apply` once more so the change sticks.
    - Sign into Arc and VS Code (settings sync) if you use them.
 
 ================================================================================

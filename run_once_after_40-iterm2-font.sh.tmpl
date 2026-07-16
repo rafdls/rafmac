@@ -1,0 +1,34 @@
+#!/bin/sh
+# Set the iTerm2 font to the Nerd Font installed via the Brewfile.
+#
+# iTerm2 keeps its preferences in a binary plist (not a text config), with the
+# font stored per-profile under "New Bookmarks". This walks every profile and
+# sets both the ASCII and non-ASCII fonts. Best-effort and idempotent: it skips
+# cleanly if iTerm2 isn't installed and asks you to quit iTerm2 first so the
+# change isn't overwritten on exit.
+set -eu
+
+PLIST="$HOME/Library/Preferences/com.googlecode.iterm2.plist"
+PB="/usr/libexec/PlistBuddy"
+FONT="JetBrainsMonoNerdFont-Regular 13"
+
+# Nothing to do if iTerm2 has never run (no prefs file yet).
+[ -f "$PLIST" ] || { echo "iTerm2 prefs not found; open iTerm2 once then re-run 'chezmoi apply'."; exit 0; }
+
+if pgrep -xq iTerm2; then
+  echo "iTerm2 is running — quit it, then re-run 'chezmoi apply' so the font sticks."
+  exit 0
+fi
+
+i=0
+while "$PB" -c "Print :'New Bookmarks':$i:Guid" "$PLIST" >/dev/null 2>&1; do
+  "$PB" -c "Set :'New Bookmarks':$i:'Normal Font' $FONT"     "$PLIST" 2>/dev/null \
+    || "$PB" -c "Add :'New Bookmarks':$i:'Normal Font' string $FONT" "$PLIST"
+  "$PB" -c "Set :'New Bookmarks':$i:'Non Ascii Font' $FONT"  "$PLIST" 2>/dev/null \
+    || "$PB" -c "Add :'New Bookmarks':$i:'Non Ascii Font' string $FONT" "$PLIST"
+  i=$((i + 1))
+done
+
+# Drop the cached copy so iTerm2 re-reads the file on next launch.
+defaults read com.googlecode.iterm2 >/dev/null 2>&1 || true
+echo "Set iTerm2 font to '$FONT' on $i profile(s)."

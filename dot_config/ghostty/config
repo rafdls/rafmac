@@ -1,0 +1,12 @@
+# Ghostty config — managed by chezmoi (rafmac).
+# Applied to ~/.config/ghostty/config
+
+# Font installed via Brewfile: font-jetbrains-mono-nerd-font
+font-family = JetBrainsMono Nerd Font
+font-size = 13
+
+# Sensible defaults; tweak to taste.
+cursor-style = block
+mouse-hide-while-typing = true
+window-padding-x = 8
+window-padding-y = 8
