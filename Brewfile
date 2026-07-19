@@ -17,10 +17,8 @@ brew "jq"
 brew "ripgrep"                  # fast search, used by many nvim setups
 brew "fzf"
 
-# Android command-line tooling. `android-platform-tools` provides `adb`.
-brew "android-platform-tools"
-
 # ---- GUI apps (casks) ----------------------------------------------------
+cask "android-platform-tools"  # provides `adb`
 cask "ghostty"                 # GPU-accelerated terminal emulator
 cask "iterm2"
 cask "visual-studio-code"
