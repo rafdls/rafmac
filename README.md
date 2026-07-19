@@ -22,21 +22,15 @@ Then work through the checklist and set up your secrets (below).
 
 ## Pointing chezmoi at this repo
 
-If chezmoi is already installed, or you have this repo cloned elsewhere, point chezmoi at it before anything else works:
+If chezmoi is already installed, clone this repo into chezmoi's default source directory — that's the only place it looks unless told otherwise:
 
 ```sh
-chezmoi init https://github.com/rafdls/rafmac.git   # clone into ~/.local/share/chezmoi
-chezmoi diff                                        # preview
-chezmoi apply                                       # write to $HOME
+git clone https://github.com/rafdls/rafmac.git ~/.local/share/chezmoi
+chezmoi diff     # preview what would change
+chezmoi apply    # write to $HOME, run the run_ scripts
 ```
 
-Already have a clone you want to keep working in? Point the source directory at it instead of re-cloning:
-
-```sh
-chezmoi init --source ~/Projects/rafmac
-```
-
-Verify with `chezmoi source-path` — it should print the repo you expect. Change it later via `sourceDir` in `~/.config/chezmoi/chezmoi.toml`.
+Confirm with `chezmoi source-path`; it should print `~/.local/share/chezmoi`. Use `chezmoi cd` to work in the repo from then on (see [Common commands](#common-commands)).
 
 ## Secrets
 
