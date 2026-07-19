@@ -1,9 +1,6 @@
 # Brewfile — installed via `brew bundle` (run_onchange_before_10 re-runs on change).
 # Docs: https://github.com/Homebrew/homebrew-bundle
 
-# ---- Taps ----------------------------------------------------------------
-tap "homebrew/bundle"
-
 # ---- CLI tools -----------------------------------------------------------
 brew "chezmoi"                  # dotfile manager — needed for diff/apply/update
 brew "git"

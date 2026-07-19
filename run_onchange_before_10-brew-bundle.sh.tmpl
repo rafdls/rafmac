@@ -14,6 +14,10 @@ fi
 
 BREWFILE="{{ .chezmoi.sourceDir }}/Brewfile"
 
+# Refresh tap metadata so migrated formulae/casks resolve correctly.
+echo "==> brew update"
+brew update
+
 echo "==> brew bundle from $BREWFILE"
 brew bundle --file="$BREWFILE"
 echo "==> brew bundle complete."
