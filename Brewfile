@@ -21,6 +21,7 @@ brew "fzf"
 brew "android-platform-tools"
 
 # ---- GUI apps (casks) ----------------------------------------------------
+cask "ghostty"                 # GPU-accelerated terminal emulator
 cask "iterm2"
 cask "visual-studio-code"
 cask "arc"
