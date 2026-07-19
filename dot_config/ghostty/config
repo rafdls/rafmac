@@ -1,12 +1,24 @@
-# Ghostty config — managed by chezmoi (rafmac).
-# Applied to ~/.config/ghostty/config
-
-# Font installed via Brewfile: font-jetbrains-mono-nerd-font
-font-family = JetBrainsMono Nerd Font
-font-size = 13
-
-# Sensible defaults; tweak to taste.
-cursor-style = block
-mouse-hide-while-typing = true
+# UI
+font-size = 16
+font-family = "JetBrains Mono Nerd Font"
+font-thicken = true
+font-thicken-strength = 1
+adjust-cell-height = 1
+background-opacity = 0.85
+background-blur=16
+background=#000000
+macos-titlebar-style = hidden
 window-padding-x = 8
 window-padding-y = 8
+
+
+# Fix reisizing pane with tmux
+macos-option-as-alt = left
+keybind = alt+arrow_left=unbind
+keybind = alt+arrow_right=unbind
+
+# Quality of life
+mouse-hide-while-typing = true
+
+# scrollback-limit in bytes, roughly 125,000 lines
+scrollback-limit = 10000000
