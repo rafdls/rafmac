@@ -5,20 +5,12 @@ My personal macOS setup and dotfiles, managed with [chezmoi](https://chezmoi.io)
 ## Fresh machine
 
 ```sh
-xcode-select --install
 sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply rafdls/rafmac
 ```
 
-This clones the repo to `~/.local/share/chezmoi`, writes the dotfiles to `$HOME`, and runs the provisioning scripts in order:
+This clones the repo to `~/.local/share/chezmoi`, writes the dotfiles to `$HOME`, and runs the `run_*` provisioning scripts in order. The first of those installs Homebrew, which also installs the Xcode Command Line Tools if they're missing, so there's nothing to install by hand first.
 
-1. Install Homebrew — `run_once_before_00`
-2. `brew bundle` the [`Brewfile`](./Brewfile) — `run_onchange_before_10`
-3. Install oh-my-zsh — `run_once_after_20`
-4. Flutter + Android SDK/emulator — `run_once_after_30`
-5. iTerm2 font — `run_once_after_40`
-6. Print a manual checklist (Xcode, App Store logins) — `run_once_after_99`
-
-Then work through the checklist and set up your secrets (below).
+Then work through the checklist it prints at the end and set up your secrets (below).
 
 ## Pointing chezmoi at this repo
 
@@ -74,21 +66,3 @@ chezmoi apply
 ```
 
 `run_onchange_*` re-runs automatically when its content changes.
-
-## Layout
-
-```
-rafmac/
-├── Brewfile                      # apps + CLI tools (brew / cask / mas)
-├── .chezmoidata.yaml             # feature toggles (install_flutter, etc.)
-├── .chezmoiignore                # paths never applied to $HOME
-├── dot_zshrc.tmpl                # → ~/.zshrc
-├── dot_zprofile.tmpl             # → ~/.zprofile (PATH, brew shellenv)
-├── dot_gitconfig.tmpl            # → ~/.gitconfig
-├── dot_tmux.conf                 # → ~/.tmux.conf
-├── dot_config/
-│   ├── nvim/init.lua             # → ~/.config/nvim/init.lua
-│   ├── rafmac/env.sh.example     # secret var names (no values)
-│   └── ai/                       # Claude / Pi coding instructions
-└── run_*.sh.tmpl                 # provisioning scripts (see Fresh machine)
-```
