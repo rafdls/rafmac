@@ -274,6 +274,54 @@ require("lazy").setup({
 		end,
 	},
 
+	-- Neoscroll: smooth/animated scrolling for <C-u>/<C-d>/zz/etc.
+	{
+		"karb94/neoscroll.nvim",
+		event = "VeryLazy",
+		config = function()
+			local neoscroll = require("neoscroll")
+			neoscroll.setup({
+				-- Only animate the mappings below; leave everything else instant.
+				mappings = { "<C-u>", "<C-d>", "<C-b>", "<C-f>", "zt", "zz", "zb" },
+				hide_cursor = true, -- hide cursor while scrolling
+				stop_eof = true, -- stop at <EOF> when scrolling downwards
+				respect_scrolloff = false,
+				cursor_scrolls_alone = true, -- cursor keeps moving even if the window can't scroll
+				duration_multiplier = 1.0,
+				easing = "quadratic",
+				performance_mode = false,
+			})
+
+			-- Slightly faster for the big jumps, snappier for the small ones.
+			local keymap = {
+				["<C-u>"] = function()
+					neoscroll.ctrl_u({ duration = 150 })
+				end,
+				["<C-d>"] = function()
+					neoscroll.ctrl_d({ duration = 150 })
+				end,
+				["<C-b>"] = function()
+					neoscroll.ctrl_b({ duration = 350 })
+				end,
+				["<C-f>"] = function()
+					neoscroll.ctrl_f({ duration = 350 })
+				end,
+				["zt"] = function()
+					neoscroll.zt({ half_win_duration = 100 })
+				end,
+				["zz"] = function()
+					neoscroll.zz({ half_win_duration = 100 })
+				end,
+				["zb"] = function()
+					neoscroll.zb({ half_win_duration = 100 })
+				end,
+			}
+			for key, func in pairs(keymap) do
+				vim.keymap.set({ "n", "v", "x" }, key, func)
+			end
+		end,
+	},
+
 	-- DiffView for Git changes
 	{
 		"sindrets/diffview.nvim",
