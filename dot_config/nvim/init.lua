@@ -147,8 +147,10 @@ require("lazy").setup({
 				pickers = {
 					find_files = {
 						-- Also hide files listed in .gitignore (build output usually is).
+						-- `--hidden` includes dotfiles/dotdirs; .git/ is still excluded
+						-- via file_ignore_patterns above.
 						-- Requires `fd` (brew install fd); falls back gracefully if absent.
-						find_command = { "fd", "--type", "f", "--strip-cwd-prefix" },
+						find_command = { "fd", "--type", "f", "--strip-cwd-prefix", "--hidden" },
 					},
 				},
 			})
@@ -167,6 +169,7 @@ require("lazy").setup({
 						"f",
 						"--strip-cwd-prefix",
 						"--no-ignore",
+						"--hidden",
 					},
 				})
 			end, { desc = "Find all files including ignored" })
