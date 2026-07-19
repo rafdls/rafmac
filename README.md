@@ -6,45 +6,49 @@ My personal macOS setup and dotfiles, managed with [chezmoi](https://chezmoi.io)
 
 ```sh
 xcode-select --install
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply <your-github-user>/rafmac
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply rafdls/rafmac
 ```
 
 This clones the repo to `~/.local/share/chezmoi`, writes the dotfiles to `$HOME`, and runs the provisioning scripts in order:
 
 1. Install Homebrew — `run_once_before_00`
-2. `brew bundle` the [`Brewfile`](./Brewfile) (apps + CLI tools) — `run_onchange_before_10`
+2. `brew bundle` the [`Brewfile`](./Brewfile) — `run_onchange_before_10`
 3. Install oh-my-zsh — `run_once_after_20`
-4. Set up Flutter + Android SDK/emulator — `run_once_after_30`
-5. Print a manual checklist for things that can't be automated (Xcode, App Store logins) — `run_once_after_99`
+4. Flutter + Android SDK/emulator — `run_once_after_30`
+5. iTerm2 font — `run_once_after_40`
+6. Print a manual checklist (Xcode, App Store logins) — `run_once_after_99`
 
-Then work through the printed checklist and set up your secrets (below).
+Then work through the checklist and set up your secrets (below).
+
+## Pointing chezmoi at this repo
+
+If chezmoi is already installed, or you have this repo cloned elsewhere, point chezmoi at it before anything else works:
+
+```sh
+chezmoi init https://github.com/rafdls/rafmac.git   # clone into ~/.local/share/chezmoi
+chezmoi diff                                        # preview
+chezmoi apply                                       # write to $HOME
+```
+
+Already have a clone you want to keep working in? Point the source directory at it instead of re-cloning:
+
+```sh
+chezmoi init --source ~/Projects/rafmac
+```
+
+Verify with `chezmoi source-path` — it should print the repo you expect. Change it later via `sourceDir` in `~/.config/chezmoi/chezmoi.toml`.
 
 ## Secrets
 
-Nothing sensitive is committed.
-
-- Real values live in `~/.config/rafmac/env.sh` which is gitignored and chezmoi-ignored.
-- The repo only ships [`env.sh.example`](./dot_config/rafmac/env.sh.example) with variable names.
-- `.zshrc` sources the real file if it exists.
+Nothing sensitive is committed. Real values live in `~/.config/rafmac/env.sh` (gitignored and chezmoi-ignored); the repo only ships [`env.sh.example`](./dot_config/rafmac/env.sh.example) with variable names. `.zshrc` sources the real file if it exists.
 
 ```sh
 cp ~/.config/rafmac/env.sh.example ~/.config/rafmac/env.sh
 $EDITOR ~/.config/rafmac/env.sh
-```
-
-A [gitleaks](https://github.com/gitleaks/gitleaks) pre-commit hook (installed via the Brewfile) blocks accidental secret commits. Enable it once:
-
-```sh
-git config core.hooksPath .githooks
+git config core.hooksPath .githooks   # enable the gitleaks pre-commit hook, once
 ```
 
 ## Common commands
-
-> These all require the `chezmoi` binary on your PATH. The fresh-machine
-> bootstrap above only downloads a throwaway copy to run `init --apply` once;
-> the persistent install comes from the `Brewfile` (`brew "chezmoi"`), so it's
-> available after the first `brew bundle`. Without chezmoi you'd have to copy
-> files by hand, and templated `.tmpl` files wouldn't render.
 
 ```sh
 chezmoi diff          # preview what apply would change
@@ -68,14 +72,14 @@ exit
 
 ## Re-running a run_ script
 
-`run_once_*` scripts run once per machine. To force one to run again:
+`run_once_*` scripts run once per machine. To force them again:
 
 ```sh
 chezmoi state delete-bucket --bucket=scriptState
 chezmoi apply
 ```
 
-`run_onchange_*` (the Brewfile installer) re-runs automatically when its content changes.
+`run_onchange_*` re-runs automatically when its content changes.
 
 ## Layout
 
@@ -92,9 +96,5 @@ rafmac/
 │   ├── nvim/init.lua             # → ~/.config/nvim/init.lua
 │   ├── rafmac/env.sh.example     # secret var names (no values)
 │   └── ai/                       # Claude / Pi coding instructions
-├── run_once_before_00-install-homebrew.sh.tmpl
-├── run_onchange_before_10-brew-bundle.sh.tmpl
-├── run_once_after_20-install-omzsh.sh.tmpl
-├── run_once_after_30-flutter-android-sdk.sh.tmpl
-└── run_once_after_99-manual-checklist.sh.tmpl
+└── run_*.sh.tmpl                 # provisioning scripts (see Fresh machine)
 ```
