@@ -15,6 +15,8 @@ opt.termguicolors = true
 opt.signcolumn = "yes"
 opt.undofile = true
 opt.scrolloff = 8
+opt.wrap = true
+opt.linebreak = true
 
 -- ---- Basic keymaps -------------------------------------------------------
 local map = vim.keymap.set
