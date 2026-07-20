@@ -13,6 +13,7 @@ brew "wget"
 brew "jq"
 brew "ripgrep"                  # fast search, used by many nvim setups
 brew "fzf"
+brew "fd"
 
 # ---- GUI apps (casks) ----------------------------------------------------
 cask "android-platform-tools"  # provides `adb`
