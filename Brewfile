@@ -14,6 +14,9 @@ brew "jq"
 brew "ripgrep"                  # fast search, used by many nvim setups
 brew "fzf"
 brew "fd"
+# ---- Tree sitter for nvim
+brew "tree-sitter"
+brew "tree-sitter-cli"
 
 # ---- GUI apps (casks) ----------------------------------------------------
 cask "android-platform-tools"  # provides `adb`
