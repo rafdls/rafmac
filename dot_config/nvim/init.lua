@@ -63,39 +63,52 @@ require("lazy").setup({
 		branch = "main",
 		build = ":TSUpdate",
 		config = function()
-			require("nvim-treesitter.configs").setup({
-				-- Parsers to install automatically.
-				ensure_installed = {
-					"kotlin",
-					"typescript",
-					"tsx",
-					"javascript",
-					"lua",
-					"json",
-					"yaml",
-					"html",
-					"css",
-					"bash",
-					"markdown",
-					"markdown_inline",
-				},
-				auto_install = true, -- install a parser when opening an unknown filetype
-				highlight = {
-					enable = true,
-					-- markdown crashes the TS highlighter on fenced code blocks with
-					-- Neovim 0.12 (nvim-treesitter#8618, unfixed/repo archived).
-					-- Fall back to Vim's built-in regex markdown highlighting instead.
-					disable = { "markdown" },
-				},
-				indent = { enable = true },
-			})
+			-- The `main` branch dropped `nvim-treesitter.configs`: parsers are
+			-- installed imperatively and highlighting/indent are wired up per
+			-- buffer via an autocmd.
+			local treesitter = require("nvim-treesitter")
+			treesitter.setup({})
 
-			-- Belt-and-suspenders: force-stop treesitter highlighting on markdown
-			-- buffers in case something else (e.g. core ftplugin) starts it.
+			---@type string[]
+			local parsers = {
+				"kotlin",
+				"typescript",
+				"tsx",
+				"javascript",
+				"lua",
+				"json",
+				"yaml",
+				"html",
+				"css",
+				"bash",
+				"markdown",
+				"markdown_inline",
+			}
+			treesitter.install(parsers)
+
+			-- markdown crashes the TS highlighter on fenced code blocks with
+			-- Neovim 0.12 (nvim-treesitter#8618). Fall back to Vim's built-in
+			-- regex markdown highlighting instead.
+			---@type table<string, boolean>
+			local highlightDisabledFiletypes = { markdown = true }
+
 			vim.api.nvim_create_autocmd("FileType", {
-				pattern = "markdown",
 				callback = function(args)
-					pcall(vim.treesitter.stop, args.buf)
+					---@type string
+					local filetype = vim.bo[args.buf].filetype
+					---@type string|nil
+					local lang = vim.treesitter.language.get_lang(filetype)
+					if lang == nil or not vim.treesitter.language.add(lang) then
+						return
+					end
+
+					if highlightDisabledFiletypes[filetype] then
+						pcall(vim.treesitter.stop, args.buf)
+						return
+					end
+
+					vim.treesitter.start(args.buf, lang)
+					vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
 				end,
 			})
 		end,
