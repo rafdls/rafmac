@@ -60,7 +60,7 @@ require("lazy").setup({
 	-- Treesitter: real syntax highlighting for Kotlin, TypeScript, etc.
 	{
 		"nvim-treesitter/nvim-treesitter",
-		branch = "master",
+		branch = "main",
 		build = ":TSUpdate",
 		config = function()
 			require("nvim-treesitter.configs").setup({
