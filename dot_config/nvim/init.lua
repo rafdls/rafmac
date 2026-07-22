@@ -83,6 +83,7 @@ require("lazy").setup({
 				"bash",
 				"markdown",
 				"markdown_inline",
+        "python"
 			}
 			treesitter.install(parsers)
 
