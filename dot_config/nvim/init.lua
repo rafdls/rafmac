@@ -58,6 +58,37 @@ require("lazy").setup({
 		lazy = false, -- load during startup
 		priority = 1000, -- load before other plugins
 		config = function()
+			require("tokyonight").setup({
+				---@type string
+				style = "night", -- storm | moon | night | day
+				transparent = true, -- drop the background so the terminal shows through
+				terminal_colors = true,
+				styles = {
+					comments = { italic = true },
+					keywords = { italic = true },
+					functions = {},
+					variables = {},
+					-- Side panes (help, Trouble, quickfix) and float windows need this
+					-- too, otherwise they render as opaque blocks over a clear buffer.
+					sidebars = "transparent",
+					floats = "transparent",
+				},
+				---@param highlights table<string, table>
+				---@param colors table<string, string>
+				on_highlights = function(highlights, colors)
+					-- Without a background, borders lose their contrast, so colour them.
+					highlights.NormalFloat = { bg = "NONE" }
+					highlights.FloatBorder = { fg = colors.blue, bg = "NONE" }
+					highlights.TelescopeNormal = { bg = "NONE" }
+					highlights.TelescopeBorder = { fg = colors.blue, bg = "NONE" }
+					highlights.TelescopePromptNormal = { bg = "NONE" }
+					highlights.TelescopePromptBorder = { fg = colors.blue, bg = "NONE" }
+					-- Keep the gutter from painting an opaque strip down the left.
+					highlights.SignColumn = { bg = "NONE" }
+					highlights.LineNr = { fg = colors.fg_gutter, bg = "NONE" }
+					highlights.CursorLineNr = { fg = colors.orange, bg = "NONE" }
+				end,
+			})
 			vim.cmd.colorscheme("tokyonight")
 		end,
 	},

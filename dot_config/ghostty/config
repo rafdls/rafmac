@@ -1,4 +1,8 @@
 # UI
+# Matches Neovim's tokyonight so ANSI colours line up in :terminal, tmux and CLIs.
+# `background` below is set after this deliberately: it overrides the theme's
+# #1a1b26 back to pure black, which reads better under background-blur.
+theme = TokyoNight Night
 font-size = 16
 font-family = "JetBrains Mono Nerd Font"
 font-thicken = true
