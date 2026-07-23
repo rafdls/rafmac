@@ -93,6 +93,43 @@ require("lazy").setup({
 		end,
 	},
 
+	-- File tree sidebar. Loads on the keymaps/command only, so it costs nothing
+	-- at startup.
+	{
+		"nvim-neo-tree/neo-tree.nvim",
+		branch = "v3.x",
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"nvim-tree/nvim-web-devicons",
+			"MunifTanjim/nui.nvim",
+		},
+		cmd = "Neotree",
+		keys = {
+			{ "<leader>fe", "<cmd>Neotree toggle<cr>", desc = "Toggle file explorer" },
+			{ "<leader>fE", "<cmd>Neotree reveal<cr>", desc = "Reveal current file in explorer" },
+		},
+		opts = {
+			-- Close the sidebar as soon as a file is opened; the bufferline takes
+			-- over navigation from there.
+			close_if_last_window = true,
+			filesystem = {
+				-- Move the tree's root when :cd changes, and track the current buffer.
+				follow_current_file = { enabled = true },
+				-- Use the OS watcher rather than polling, so external changes show up.
+				use_libuv_file_watcher = true,
+				filtered_items = {
+					-- Dotfiles are shown but dimmed; toggle with H inside the tree.
+					hide_dotfiles = false,
+					hide_gitignored = true,
+					hide_by_name = { ".git", "node_modules", ".gradle", ".idea", "build" },
+				},
+			},
+			window = {
+				width = 32,
+			},
+		},
+	},
+
 	-- Replaces the cmdline, messages and search prompt with floating windows.
 	-- Pairs with the transparent theme: no opaque bar at the bottom of the screen.
 	{
@@ -179,7 +216,7 @@ require("lazy").setup({
 					separator_style = "thin",
 					-- Indent the bar so it doesn't sit under a file tree, if one is open.
 					offsets = {
-						{ filetype = "NvimTree", text = "Files", highlight = "Directory", separator = true },
+						{ filetype = "neo-tree", text = "Files", highlight = "Directory", separator = true },
 					},
 				},
 			})
