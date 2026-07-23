@@ -93,6 +93,35 @@ require("lazy").setup({
 		end,
 	},
 
+	-- Tab bar across the top listing open buffers. tokyonight styles this
+	-- automatically via its bufferline integration.
+	{
+		"akinsho/bufferline.nvim",
+		dependencies = { "nvim-tree/nvim-web-devicons" },
+		event = "VeryLazy",
+		config = function()
+			require("bufferline").setup({
+				options = {
+					---@type string
+					mode = "buffers", -- one entry per buffer, not per tabpage
+					diagnostics = "nvim_lsp",
+					show_buffer_close_icons = false,
+					separator_style = "thin",
+					-- Indent the bar so it doesn't sit under a file tree, if one is open.
+					offsets = {
+						{ filetype = "NvimTree", text = "Files", highlight = "Directory", separator = true },
+					},
+				},
+			})
+
+			map("n", "<S-l>", "<cmd>BufferLineCycleNext<cr>", { desc = "Next buffer" })
+			map("n", "<S-h>", "<cmd>BufferLineCyclePrev<cr>", { desc = "Previous buffer" })
+			map("n", "<leader>bp", "<cmd>BufferLineTogglePin<cr>", { desc = "Pin/unpin buffer" })
+			map("n", "<leader>bo", "<cmd>BufferLineCloseOthers<cr>", { desc = "Close other buffers" })
+			map("n", "<leader>bd", "<cmd>bdelete<cr>", { desc = "Close buffer" })
+		end,
+	},
+
 	-- Popup listing the available follow-up keys after a prefix (<leader>, g, z, ").
 	{
 		"folke/which-key.nvim",
@@ -113,6 +142,7 @@ require("lazy").setup({
 			-- Names for the prefixes used above, so the popup groups them instead of
 			-- listing bare keys.
 			wk.add({
+				{ "<leader>b", group = "buffer" },
 				{ "<leader>f", group = "find (telescope)" },
 				{ "<leader>g", group = "git (diffview)" },
 				{ "<leader>h", group = "git hunk" },
