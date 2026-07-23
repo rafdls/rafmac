@@ -1,5 +1,11 @@
 -- ~/.config/nvim/init.lua — minimal starter. Replace with your own config later.
 
+-- ---- Leader --------------------------------------------------------------
+-- Must be set before lazy.nvim loads: plugin `keys` specs resolve <leader> at
+-- load time.
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
 -- ---- Options -------------------------------------------------------------
 local opt = vim.opt
 opt.number = true
@@ -8,7 +14,6 @@ opt.expandtab = true
 opt.shiftwidth = 2
 opt.tabstop = 2
 opt.smartindent = true
-opt.wrap = false
 opt.ignorecase = true
 opt.smartcase = true
 opt.termguicolors = true
@@ -83,7 +88,6 @@ require("lazy").setup({
 				"bash",
 				"markdown",
 				"markdown_inline",
-        "python"
 			}
 			treesitter.install(parsers)
 
@@ -126,6 +130,18 @@ require("lazy").setup({
 		config = function()
 			local telescope = require("telescope")
 			local actions = require("telescope.actions")
+
+			-- `--hidden` includes dotfiles/dotdirs; .git/ is still excluded via
+			-- file_ignore_patterns below. Needs `fd` (brew install fd); when it is
+			-- missing we leave find_command unset so Telescope uses its builtin
+			-- finder instead of erroring.
+			---@type boolean
+			local hasFd = vim.fn.executable("fd") == 1
+			---@type string[]
+			local fdFindCommand = { "fd", "--type", "f", "--strip-cwd-prefix", "--hidden" }
+			---@type string[]
+			local fdFindAllCommand = vim.list_extend(vim.deepcopy(fdFindCommand), { "--no-ignore" })
+
 			telescope.setup({
 				defaults = {
 					-- Horizontally scroll the results list to reveal long paths.
@@ -162,54 +178,41 @@ require("lazy").setup({
 				},
 				pickers = {
 					find_files = {
-						-- Also hide files listed in .gitignore (build output usually is).
-						-- `--hidden` includes dotfiles/dotdirs; .git/ is still excluded
-						-- via file_ignore_patterns above.
-						-- Requires `fd` (brew install fd); falls back gracefully if absent.
-						find_command = { "fd", "--type", "f", "--strip-cwd-prefix", "--hidden" },
+						-- Also hides files listed in .gitignore (build output usually is).
+						find_command = hasFd and fdFindCommand or nil,
 					},
 				},
 			})
 			pcall(telescope.load_extension, "fzf")
 
 			local builtin = require("telescope.builtin")
-			vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Find files" })
-			vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Live grep" })
-			vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Find buffers" })
-			vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Help tags" })
-			vim.keymap.set("n", "<leader>fa", function()
-				require("telescope.builtin").find_files({
-					find_command = {
-						"fd",
-						"--type",
-						"f",
-						"--strip-cwd-prefix",
-						"--no-ignore",
-						"--hidden",
-					},
-				})
+			map("n", "<leader>ff", builtin.find_files, { desc = "Find files" })
+			map("n", "<leader>fg", builtin.live_grep, { desc = "Live grep" })
+			map("n", "<leader>fb", builtin.buffers, { desc = "Find buffers" })
+			map("n", "<leader>fh", builtin.help_tags, { desc = "Help tags" })
+			map("n", "<leader>fa", function()
+				builtin.find_files({ find_command = hasFd and fdFindAllCommand or nil, no_ignore = true })
 			end, { desc = "Find all files including ignored" })
 		end,
 	},
 
 	-- LSP: mason installs/manages servers, lspconfig wires them into nvim
 	{
-		"williamboman/mason.nvim",
+		"mason-org/mason.nvim",
 		config = true,
 	},
 	{
-		"williamboman/mason-lspconfig.nvim",
-		dependencies = { "williamboman/mason.nvim" },
+		"mason-org/mason-lspconfig.nvim",
+		dependencies = { "mason-org/mason.nvim" },
 		config = function()
 			require("mason-lspconfig").setup({
-				ensure_installed = { "kotlin_language_server" },
-				ensure_installed = { "ts_ls" },
+				ensure_installed = { "kotlin_language_server", "ts_ls" },
 			})
 		end,
 	},
 	{
 		"neovim/nvim-lspconfig",
-		dependencies = { "williamboman/mason-lspconfig.nvim" },
+		dependencies = { "mason-org/mason-lspconfig.nvim" },
 		config = function()
 			vim.lsp.enable("kotlin_language_server")
 			vim.lsp.enable("ts_ls")
@@ -221,33 +224,33 @@ require("lazy").setup({
 					local telescope = require("telescope.builtin")
 
 					-- Navigation
-					vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-					vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
-					vim.keymap.set("n", "gi", telescope.lsp_implementations, opts)
-					vim.keymap.set("n", "gy", vim.lsp.buf.type_definition, opts)
-					vim.keymap.set("n", "gr", telescope.lsp_references, opts) -- find usages
+					map("n", "gd", vim.lsp.buf.definition, opts)
+					map("n", "gD", vim.lsp.buf.declaration, opts)
+					map("n", "gi", telescope.lsp_implementations, opts)
+					map("n", "gy", vim.lsp.buf.type_definition, opts)
+					map("n", "gr", telescope.lsp_references, opts) -- find usages
 
 					-- Info
-					vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-					vim.keymap.set("i", "<C-k>", vim.lsp.buf.signature_help, opts)
+					map("n", "K", vim.lsp.buf.hover, opts)
+					map("i", "<C-k>", vim.lsp.buf.signature_help, opts)
 
 					-- Symbols (fuzzy-searchable via Telescope)
-					vim.keymap.set("n", "<leader>ds", telescope.lsp_document_symbols, opts)
-					vim.keymap.set("n", "<leader>ws", telescope.lsp_dynamic_workspace_symbols, opts)
+					map("n", "<leader>ds", telescope.lsp_document_symbols, opts)
+					map("n", "<leader>ws", telescope.lsp_dynamic_workspace_symbols, opts)
 
 					-- Refactoring
-					vim.keymap.set("n", "grn", vim.lsp.buf.rename, opts)
-					vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
+					map("n", "grn", vim.lsp.buf.rename, opts)
+					map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
 
 					-- Diagnostics
-					vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, opts)
-					vim.keymap.set("n", "[d", function()
+					map("n", "<leader>e", vim.diagnostic.open_float, opts)
+					map("n", "[d", function()
 						vim.diagnostic.jump({ count = -1, float = true })
 					end, opts)
-					vim.keymap.set("n", "]d", function()
+					map("n", "]d", function()
 						vim.diagnostic.jump({ count = 1, float = true })
 					end, opts)
-					vim.keymap.set("n", "<leader>dl", vim.diagnostic.setloclist, opts) -- all diagnostics in loclist
+					map("n", "<leader>dl", vim.diagnostic.setloclist, opts) -- all diagnostics in loclist
 				end,
 			})
 		end,
@@ -284,12 +287,16 @@ require("lazy").setup({
 			local gitsigns = require("gitsigns")
 			gitsigns.setup()
 
-			vim.keymap.set("n", "]c", gitsigns.next_hunk, { desc = "Next git hunk" })
-			vim.keymap.set("n", "[c", gitsigns.prev_hunk, { desc = "Prev git hunk" })
-			vim.keymap.set("n", "<leader>hp", gitsigns.preview_hunk, { desc = "Preview hunk" })
-			vim.keymap.set("n", "<leader>hs", gitsigns.stage_hunk, { desc = "Stage hunk" })
-			vim.keymap.set("n", "<leader>hr", gitsigns.reset_hunk, { desc = "Reset hunk" })
-			vim.keymap.set("n", "<leader>hb", gitsigns.blame_line, { desc = "Blame line" })
+			map("n", "]c", function()
+				gitsigns.nav_hunk("next")
+			end, { desc = "Next git hunk" })
+			map("n", "[c", function()
+				gitsigns.nav_hunk("prev")
+			end, { desc = "Prev git hunk" })
+			map("n", "<leader>hp", gitsigns.preview_hunk, { desc = "Preview hunk" })
+			map("n", "<leader>hs", gitsigns.stage_hunk, { desc = "Stage hunk" })
+			map("n", "<leader>hr", gitsigns.reset_hunk, { desc = "Reset hunk" })
+			map("n", "<leader>hb", gitsigns.blame_line, { desc = "Blame line" })
 		end,
 	},
 
@@ -336,7 +343,7 @@ require("lazy").setup({
 				end,
 			}
 			for key, func in pairs(keymap) do
-				vim.keymap.set({ "n", "v", "x" }, key, func)
+				map({ "n", "v", "x" }, key, func)
 			end
 		end,
 	},
@@ -357,3 +364,10 @@ require("lazy").setup({
 		end,
 	},
 })
+
+-- ---- Secondary leader ----------------------------------------------------
+-- <leader> is expanded to the current mapleader when each mapping is defined,
+-- so every mapping above is bound to <Space> only. Forward `\` (the Vim default
+-- leader) into <Space> so both prefixes work. `remap = true` is required: the
+-- point is to recurse into the leader mappings.
+map({ "n", "v", "x" }, "\\", "<Space>", { remap = true, desc = "Alias for <leader>" })
