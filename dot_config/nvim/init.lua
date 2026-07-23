@@ -93,6 +93,48 @@ require("lazy").setup({
 		end,
 	},
 
+	-- Statusline. `theme = "auto"` picks up tokyonight; the section backgrounds
+	-- are cleared to NONE so the transparent buffer background carries through.
+	{
+		"nvim-lualine/lualine.nvim",
+		dependencies = { "nvim-tree/nvim-web-devicons" },
+		config = function()
+			---@type table
+			local theme = require("lualine.themes.tokyonight")
+			for _, mode in pairs({ "normal", "insert", "visual", "replace", "command", "inactive" }) do
+				if theme[mode] then
+					if theme[mode].c then
+						theme[mode].c.bg = "NONE"
+					end
+					if theme[mode].b then
+						theme[mode].b.bg = "NONE"
+					end
+				end
+			end
+
+			require("lualine").setup({
+				options = {
+					theme = theme,
+					icons_enabled = true, -- needs a Nerd Font (JetBrains Mono Nerd Font is set in Ghostty)
+					component_separators = { left = "", right = "" },
+					section_separators = { left = "", right = "" },
+					-- One statusline for the whole window instead of one per split.
+					globalstatus = true,
+				},
+				sections = {
+					lualine_a = { "mode" },
+					lualine_b = { "branch", "diff", "diagnostics" },
+					-- Path relative to cwd, with a modified/readonly marker.
+					lualine_c = { { "filename", path = 1 } },
+					lualine_x = { "filetype" },
+					lualine_y = { "progress" },
+					lualine_z = { "location" },
+				},
+				extensions = { "lazy", "mason", "quickfix" },
+			})
+		end,
+	},
+
 	-- Treesitter: real syntax highlighting for Kotlin, TypeScript, etc.
 	{
 		"nvim-treesitter/nvim-treesitter",
