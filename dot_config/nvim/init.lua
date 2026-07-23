@@ -93,6 +93,45 @@ require("lazy").setup({
 		end,
 	},
 
+	-- Replaces the cmdline, messages and search prompt with floating windows.
+	-- Pairs with the transparent theme: no opaque bar at the bottom of the screen.
+	{
+		"folke/noice.nvim",
+		event = "VeryLazy",
+		dependencies = {
+			"MunifTanjim/nui.nvim",
+			"rcarriga/nvim-notify", -- routes :messages and notifications to toasts
+		},
+		config = function()
+			require("notify").setup({
+				---@type string
+				background_colour = "#000000", -- required when the theme is transparent
+				render = "compact",
+				stages = "static", -- no fade animation; avoids artefacts over a blurred terminal
+				timeout = 3000,
+			})
+
+			require("noice").setup({
+				lsp = {
+					-- Render LSP hover/signature markdown through Treesitter.
+					override = {
+						["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+						["vim.lsp.util.stylize_markdown"] = true,
+					},
+				},
+				presets = {
+					bottom_search = true, -- classic bottom cmdline for / and ?
+					command_palette = true, -- : cmdline and popupmenu together, centred
+					long_message_to_split = true, -- long messages open in a split, not a toast
+					lsp_doc_border = true,
+				},
+			})
+
+			map("n", "<leader>nh", "<cmd>NoiceHistory<cr>", { desc = "Message history" })
+			map("n", "<leader>nd", "<cmd>NoiceDismiss<cr>", { desc = "Dismiss notifications" })
+		end,
+	},
+
 	-- Vertical guides at each indent level, plus an underline marking the
 	-- start/end of the block the cursor sits in. tokyonight colours these.
 	{
@@ -174,6 +213,7 @@ require("lazy").setup({
 			-- listing bare keys.
 			wk.add({
 				{ "<leader>b", group = "buffer" },
+				{ "<leader>n", group = "noice (messages)" },
 				{ "<leader>f", group = "find (telescope)" },
 				{ "<leader>g", group = "git (diffview)" },
 				{ "<leader>h", group = "git hunk" },
