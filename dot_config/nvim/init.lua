@@ -93,6 +93,36 @@ require("lazy").setup({
 		end,
 	},
 
+	-- Popup listing the available follow-up keys after a prefix (<leader>, g, z, ").
+	{
+		"folke/which-key.nvim",
+		event = "VeryLazy",
+		config = function()
+			-- How long which-key waits before showing. Vim's default of 1000ms is
+			-- too slow to be useful as a reminder.
+			vim.o.timeout = true
+			vim.o.timeoutlen = 400
+
+			local wk = require("which-key")
+			wk.setup({
+				---@type string
+				preset = "helix", -- right-hand side panel; "classic" for the bottom bar
+				win = { border = "rounded" },
+			})
+
+			-- Names for the prefixes used above, so the popup groups them instead of
+			-- listing bare keys.
+			wk.add({
+				{ "<leader>f", group = "find (telescope)" },
+				{ "<leader>g", group = "git (diffview)" },
+				{ "<leader>h", group = "git hunk" },
+				{ "<leader>d", group = "diagnostics / symbols" },
+				{ "<leader>c", group = "code" },
+				{ "<leader>w", group = "write / workspace" },
+			})
+		end,
+	},
+
 	-- Statusline. `theme = "auto"` picks up tokyonight; the section backgrounds
 	-- are cleared to NONE so the transparent buffer background carries through.
 	{
@@ -293,37 +323,45 @@ require("lazy").setup({
 			-- Keymaps that apply once an LSP client attaches to a buffer
 			vim.api.nvim_create_autocmd("LspAttach", {
 				callback = function(args)
-					local opts = { buffer = args.buf }
 					local telescope = require("telescope.builtin")
 
+					-- Buffer-local map with a description, so which-key can label it.
+					---@param mode string|string[]
+					---@param lhs string
+					---@param rhs function
+					---@param desc string
+					local function lspMap(mode, lhs, rhs, desc)
+						map(mode, lhs, rhs, { buffer = args.buf, desc = desc })
+					end
+
 					-- Navigation
-					map("n", "gd", vim.lsp.buf.definition, opts)
-					map("n", "gD", vim.lsp.buf.declaration, opts)
-					map("n", "gi", telescope.lsp_implementations, opts)
-					map("n", "gy", vim.lsp.buf.type_definition, opts)
-					map("n", "gr", telescope.lsp_references, opts) -- find usages
+					lspMap("n", "gd", vim.lsp.buf.definition, "Go to definition")
+					lspMap("n", "gD", vim.lsp.buf.declaration, "Go to declaration")
+					lspMap("n", "gi", telescope.lsp_implementations, "Go to implementations")
+					lspMap("n", "gy", vim.lsp.buf.type_definition, "Go to type definition")
+					lspMap("n", "gr", telescope.lsp_references, "Find references (usages)")
 
 					-- Info
-					map("n", "K", vim.lsp.buf.hover, opts)
-					map("i", "<C-k>", vim.lsp.buf.signature_help, opts)
+					lspMap("n", "K", vim.lsp.buf.hover, "Hover docs")
+					lspMap("i", "<C-k>", vim.lsp.buf.signature_help, "Signature help")
 
 					-- Symbols (fuzzy-searchable via Telescope)
-					map("n", "<leader>ds", telescope.lsp_document_symbols, opts)
-					map("n", "<leader>ws", telescope.lsp_dynamic_workspace_symbols, opts)
+					lspMap("n", "<leader>ds", telescope.lsp_document_symbols, "Document symbols")
+					lspMap("n", "<leader>ws", telescope.lsp_dynamic_workspace_symbols, "Workspace symbols")
 
 					-- Refactoring
-					map("n", "grn", vim.lsp.buf.rename, opts)
-					map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
+					lspMap("n", "grn", vim.lsp.buf.rename, "Rename symbol")
+					lspMap({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "Code action")
 
 					-- Diagnostics
-					map("n", "<leader>e", vim.diagnostic.open_float, opts)
-					map("n", "[d", function()
+					lspMap("n", "<leader>e", vim.diagnostic.open_float, "Show diagnostic under cursor")
+					lspMap("n", "[d", function()
 						vim.diagnostic.jump({ count = -1, float = true })
-					end, opts)
-					map("n", "]d", function()
+					end, "Previous diagnostic")
+					lspMap("n", "]d", function()
 						vim.diagnostic.jump({ count = 1, float = true })
-					end, opts)
-					map("n", "<leader>dl", vim.diagnostic.setloclist, opts) -- all diagnostics in loclist
+					end, "Next diagnostic")
+					lspMap("n", "<leader>dl", vim.diagnostic.setloclist, "All diagnostics to loclist")
 				end,
 			})
 		end,
