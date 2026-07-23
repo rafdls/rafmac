@@ -93,6 +93,37 @@ require("lazy").setup({
 		end,
 	},
 
+	-- Vertical guides at each indent level, plus an underline marking the
+	-- start/end of the block the cursor sits in. tokyonight colours these.
+	{
+		"lukas-reineke/indent-blankline.nvim",
+		main = "ibl",
+		event = { "BufReadPost", "BufNewFile" },
+		config = function()
+			require("ibl").setup({
+				indent = { char = "\u{2502}" },
+				scope = {
+					enabled = true,
+					show_start = true,
+					show_end = false,
+				},
+				-- Buffers where guides are noise rather than structure.
+				exclude = {
+					filetypes = {
+						"help",
+						"lazy",
+						"mason",
+						"checkhealth",
+						"gitcommit",
+						"markdown",
+						"TelescopePrompt",
+						"TelescopeResults",
+					},
+				},
+			})
+		end,
+	},
+
 	-- Tab bar across the top listing open buffers. tokyonight styles this
 	-- automatically via its bufferline integration.
 	{
