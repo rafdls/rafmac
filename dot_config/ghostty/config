@@ -1,16 +1,16 @@
 # UI
 # Matches Neovim's tokyonight so ANSI colours line up in :terminal, tmux and CLIs.
-# `background` below is set after this deliberately: it overrides the theme's
-# #1a1b26 back to pure black, which reads better under background-blur.
-theme = TokyoNight Night
+# Follows the macOS system appearance automatically. No `background` override so
+# each variant's own background applies. Opacity is global (see below), so light
+# mode stays slightly translucent.
+theme = dark:TokyoNight Night,light:TokyoNightDay-readable
 font-size = 16
 font-family = "JetBrains Mono Nerd Font"
 font-thicken = true
 font-thicken-strength = 1
 adjust-cell-height = 1
-background-opacity = 0.85
+background-opacity = 1
 background-blur=16
-background=#000000
 macos-titlebar-style = transparent
 window-padding-x = 8
 window-padding-y = 8

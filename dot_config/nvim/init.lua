@@ -58,38 +58,90 @@ require("lazy").setup({
 		lazy = false, -- load during startup
 		priority = 1000, -- load before other plugins
 		config = function()
-			require("tokyonight").setup({
-				---@type string
-				style = "night", -- storm | moon | night | day
-				transparent = true, -- drop the background so the terminal shows through
-				terminal_colors = true,
-				styles = {
-					comments = { italic = true },
-					keywords = { italic = true },
-					functions = {},
-					variables = {},
-					-- Side panes (help, Trouble, quickfix) and float windows need this
-					-- too, otherwise they render as opaque blocks over a clear buffer.
-					sidebars = "transparent",
-					floats = "transparent",
-				},
-				---@param highlights table<string, table>
-				---@param colors table<string, string>
-				on_highlights = function(highlights, colors)
-					-- Without a background, borders lose their contrast, so colour them.
-					highlights.NormalFloat = { bg = "NONE" }
-					highlights.FloatBorder = { fg = colors.blue, bg = "NONE" }
-					highlights.TelescopeNormal = { bg = "NONE" }
-					highlights.TelescopeBorder = { fg = colors.blue, bg = "NONE" }
-					highlights.TelescopePromptNormal = { bg = "NONE" }
-					highlights.TelescopePromptBorder = { fg = colors.blue, bg = "NONE" }
-					-- Keep the gutter from painting an opaque strip down the left.
-					highlights.SignColumn = { bg = "NONE" }
-					highlights.LineNr = { fg = colors.fg_gutter, bg = "NONE" }
-					highlights.CursorLineNr = { fg = colors.orange, bg = "NONE" }
+			-- `transparent` is a setup-time option, so switching it means re-running
+			-- setup and re-applying the colorscheme. Dark stays transparent (looks
+			-- good over Ghostty's blur); light goes opaque (transparency washes the
+			-- pale Day palette out to the point it stops reading as light mode).
+			---@param background string "dark" | "light"
+			local function applyTheme(background)
+				---@type boolean
+				local isDark = background == "dark"
+				require("tokyonight").setup({
+					---@type string
+					style = "night", -- dark variant: storm | moon | night
+					---@type string
+					light_style = "day", -- used when vim.o.background == "light"
+					transparent = isDark,
+					terminal_colors = true,
+					styles = {
+						comments = { italic = true },
+						keywords = { italic = true },
+						functions = {},
+						variables = {},
+						-- Match the buffer: clear in dark, normal (opaque) in light.
+						sidebars = isDark and "transparent" or "normal",
+						floats = isDark and "transparent" or "normal",
+					},
+					---@param highlights table<string, table>
+					---@param colors table<string, string>
+					on_highlights = function(highlights, colors)
+						-- Only clear float/gutter backgrounds when transparent; in light
+						-- mode let them keep the theme's opaque backgrounds.
+						---@type string
+						local clearBg = isDark and "NONE" or colors.bg_float
+						highlights.NormalFloat = { bg = clearBg }
+						highlights.FloatBorder = { fg = colors.blue, bg = clearBg }
+						highlights.TelescopeNormal = { bg = clearBg }
+						highlights.TelescopeBorder = { fg = colors.blue, bg = clearBg }
+						highlights.TelescopePromptNormal = { bg = clearBg }
+						highlights.TelescopePromptBorder = { fg = colors.blue, bg = clearBg }
+						highlights.SignColumn = { bg = isDark and "NONE" or colors.bg }
+						highlights.LineNr = { fg = colors.fg_gutter, bg = isDark and "NONE" or colors.bg }
+						highlights.CursorLineNr = { fg = colors.orange, bg = isDark and "NONE" or colors.bg }
+					end,
+				})
+				vim.o.background = background
+				vim.cmd.colorscheme("tokyonight")
+			end
+
+			-- Match the macOS system appearance so the (transparent) dark buffer is
+			-- never rendered over Ghostty's light background, and vice versa.
+			-- `AppleInterfaceStyle` is "Dark" in dark mode and unset (command fails)
+			-- in light mode.
+			---@return string "dark" | "light"
+			local function detectSystemBackground()
+				local isDark = vim.fn.system("defaults read -g AppleInterfaceStyle 2>/dev/null"):match("Dark")
+				return isDark and "dark" or "light"
+			end
+
+			applyTheme(detectSystemBackground())
+
+			-- Re-detect on demand (e.g. after flipping macOS appearance).
+			vim.api.nvim_create_user_command("ThemeSync", function()
+				applyTheme(detectSystemBackground())
+			end, { desc = "Match theme to macOS appearance" })
+			map("n", "<leader>us", "<cmd>ThemeSync<cr>", { desc = "Sync theme to macOS" })
+
+			-- Auto-follow the system: changing macOS appearance happens outside
+			-- Neovim, so refocusing the terminal is the reliable moment to catch it.
+			-- Only re-apply when the mode actually changed, to avoid flicker.
+			vim.api.nvim_create_autocmd("FocusGained", {
+				callback = function()
+					---@type string
+					local detected = detectSystemBackground()
+					if detected ~= vim.o.background then
+						applyTheme(detected)
+					end
 				end,
+				desc = "Follow macOS light/dark on focus",
 			})
-			vim.cmd.colorscheme("tokyonight")
+
+			-- Flip between the light and dark tokyonight variants live. Ghostty's
+			-- own theme follows macOS on its own.
+			vim.api.nvim_create_user_command("ThemeToggle", function()
+				applyTheme(vim.o.background == "dark" and "light" or "dark")
+			end, { desc = "Toggle light/dark tokyonight" })
+			map("n", "<leader>ut", "<cmd>ThemeToggle<cr>", { desc = "Toggle light/dark theme" })
 		end,
 	},
 
@@ -142,7 +194,9 @@ require("lazy").setup({
 		config = function()
 			require("notify").setup({
 				---@type string
-				background_colour = "#000000", -- required when the theme is transparent
+				-- Follows the active theme instead of a hardcoded colour so it works in
+				-- both light and dark mode; resolved from the NormalFloat highlight.
+				background_colour = "NormalFloat",
 				render = "compact",
 				stages = "static", -- no fade animation; avoids artefacts over a blurred terminal
 				timeout = 3000,
@@ -251,6 +305,7 @@ require("lazy").setup({
 			wk.add({
 				{ "<leader>b", group = "buffer" },
 				{ "<leader>n", group = "noice (messages)" },
+				{ "<leader>u", group = "ui / toggle" },
 				{ "<leader>f", group = "find (telescope)" },
 				{ "<leader>g", group = "git (diffview)" },
 				{ "<leader>h", group = "git hunk" },
