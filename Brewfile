@@ -27,6 +27,9 @@ cask "arc"
 cask "android-studio"          # bundles the Android SDK + emulator + avdmanager
 cask "flutter"                 # Flutter SDK; `flutter doctor` finishes setup
 
+# Rust
+brew "rustup"                  # Rust toolchain installer
+
 # ---- Fonts (nice-to-have for terminal/nvim) ------------------------------
 cask "font-jetbrains-mono-nerd-font"
 
