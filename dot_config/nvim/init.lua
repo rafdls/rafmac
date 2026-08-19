@@ -22,6 +22,22 @@ opt.undofile = true
 opt.scrolloff = 8
 opt.wrap = true
 opt.linebreak = true
+opt.autoread = true
+
+-- ---- Auto-reload files changed outside Neovim ----------------------------
+-- 'autoread' only reloads when Neovim gets around to checking. Bare :checktime
+-- checks every loaded buffer, so this avoids running :e per buffer.
+-- Requires `set -g focus-events on` in tmux for FocusGained to fire.
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "TermClose", "TermLeave" }, {
+	pattern = "*",
+	callback = function()
+		if vim.fn.mode() ~= "c" and vim.bo.buftype == "" then
+			vim.cmd("checktime")
+		end
+	end,
+	desc = "Reload buffers changed on disk",
+})
+
 
 -- ---- Basic keymaps -------------------------------------------------------
 local map = vim.keymap.set
