@@ -400,6 +400,7 @@ require("lazy").setup({
 				"bash",
 				"markdown",
 				"markdown_inline",
+				"toml",
 			}
 			treesitter.install(parsers)
 
