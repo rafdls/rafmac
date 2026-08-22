@@ -22,7 +22,15 @@ alias gs="git status"
 alias gd="git diff"
 alias t="tmux"
 alias ta="tmux attach"
-alias glow="glow -p"
+# Pick a glow style from the current macOS appearance. tmux blocks glow's own
+# OSC 11 background detection, so "-s auto" always falls back to dark.
+glow() {
+  if defaults read -g AppleInterfaceStyle &>/dev/null; then
+    command glow -s dracula -p "$@"
+  else
+    command glow -s light -p "$@"
+  fi
+}
 # Pull the latest dotfiles and re-apply them.
 alias dotpull="chezmoi update"
 # Jump into the dotfiles source repo.
