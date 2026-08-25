@@ -15,6 +15,8 @@
 ## Code Style
 - Be succinct. Avoid over-explanation.
 - Prefer the simplest clear implementation, less verbosity, less magic, and fewer abstractions.
+- Avoid writing comments on non-api functions/variables.
+- Do not write comments on code unless it's an API. Have I said this before? Yes? Because this is VERY IMPORTANT
 - No emojis in code or responses.
 - Write appropriate docs for public functions and APIs: KSDoc for Kotlin, JSDoc for TypeScript/JavaScript.
 - Variable names must be specific and explicit, include unit, type, or qualifier where it aids clarity (e.g. `startDateUtcMillis` over `startDateMillis` or `initialMillis`).
