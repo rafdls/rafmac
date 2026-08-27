@@ -24,6 +24,7 @@ brew "tree-sitter-cli"
 cask "android-platform-tools"  # provides `adb`
 cask "ghostty"                 # GPU-accelerated terminal emulator
 cask "iterm2"
+cask "karabiner-elements"      # keyboard remapping (caps lock layer, etc.)
 cask "visual-studio-code"
 cask "arc"
 cask "android-studio"          # bundles the Android SDK + emulator + avdmanager

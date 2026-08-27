@@ -45,5 +45,12 @@ cat <<'EOF'
      `chezmoi apply` once more so the change sticks.
    - Sign into Arc and VS Code (settings sync) if you use them.
 
+7. KARABINER-ELEMENTS (caps lock as vim-arrow layer)
+   - The rule source is managed at ~/.config/karabiner/assets/complex_modifications/caps-layer.json
+     but enabling it lives in ~/.config/karabiner/karabiner.json (machine-specific,
+     not managed by chezmoi). Open Karabiner-Elements → Complex Modifications →
+     Add rule → enable "Caps Lock as layer key (Escape when tapped alone)".
+   - Grant Input Monitoring / Accessibility permissions when macOS prompts.
+
 ================================================================================
 EOF
