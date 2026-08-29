@@ -38,7 +38,6 @@ vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "TermClose", "TermLeave
 	desc = "Reload buffers changed on disk",
 })
 
-
 -- ---- Basic keymaps -------------------------------------------------------
 local map = vim.keymap.set
 map("n", "<leader>w", "<cmd>write<cr>", { desc = "Save" })
@@ -225,6 +224,9 @@ require("lazy").setup({
 						["vim.lsp.util.convert_input_to_markdown_lines"] = true,
 						["vim.lsp.util.stylize_markdown"] = true,
 					},
+					-- Don't auto-pop signature help while typing; <C-k> still
+					-- triggers it manually via the LspAttach keymap.
+					signature = { enabled = false },
 				},
 				presets = {
 					bottom_search = true, -- classic bottom cmdline for / and ?
@@ -509,6 +511,27 @@ require("lazy").setup({
 		end,
 	},
 
+	-- Completion: auto-suggest popup fed by whatever LSP client is attached
+	{
+		"saghen/blink.cmp",
+		event = "InsertEnter",
+		version = "1.*",
+		opts = {
+			keymap = {
+				preset = "default",
+				-- Menu is disabled (ghost text only), so "default" preset's
+				-- menu-visibility check never fires; accept the ghost text
+				-- directly, falling back to a normal <Tab> otherwise.
+				["<Tab>"] = { "accept", "fallback" },
+			},
+			sources = { default = { "lsp", "path", "buffer" } },
+			completion = {
+				menu = { enabled = false },
+				ghost_text = { enabled = true },
+			},
+		},
+	},
+
 	-- LSP: mason installs/manages servers, lspconfig wires them into nvim
 	{
 		"mason-org/mason.nvim",
@@ -519,16 +542,20 @@ require("lazy").setup({
 		dependencies = { "mason-org/mason.nvim" },
 		config = function()
 			require("mason-lspconfig").setup({
-				ensure_installed = { "kotlin_language_server", "ts_ls" },
+				ensure_installed = { "kotlin_language_server", "ts_ls", "rust_analyzer" },
 			})
 		end,
 	},
 	{
 		"neovim/nvim-lspconfig",
-		dependencies = { "mason-org/mason-lspconfig.nvim" },
+		dependencies = { "mason-org/mason-lspconfig.nvim", "saghen/blink.cmp" },
 		config = function()
+			-- Advertise blink.cmp's completion capabilities to every LSP server.
+			vim.lsp.config("*", { capabilities = require("blink.cmp").get_lsp_capabilities() })
+
 			vim.lsp.enable("kotlin_language_server")
 			vim.lsp.enable("ts_ls")
+			vim.lsp.enable("rust_analyzer")
 
 			-- Keymaps that apply once an LSP client attaches to a buffer
 			vim.api.nvim_create_autocmd("LspAttach", {
