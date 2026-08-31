@@ -20,6 +20,11 @@ brew "glow"
 brew "tree-sitter"
 brew "tree-sitter-cli"
 
+# ---- Window management ----------------------------------------------------
+tap "felixkratz/formulae"
+cask "nikitabobko/tap/aerospace" # i3-like tiling window manager
+brew "felixkratz/formulae/borders" # window border highlighter (used with aerospace)
+
 # ---- GUI apps (casks) ----------------------------------------------------
 cask "android-platform-tools"  # provides `adb`
 cask "ghostty"                 # GPU-accelerated terminal emulator
