@@ -165,6 +165,13 @@ require("lazy").setup({
 	{
 		"nvim-neo-tree/neo-tree.nvim",
 		branch = "v3.x",
+		init = function()
+			vim.api.nvim_create_autocmd("VimEnter", {
+				callback = function()
+					vim.cmd("Neotree show")
+				end,
+			})
+		end,
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			"nvim-tree/nvim-web-devicons",
@@ -186,6 +193,7 @@ require("lazy").setup({
 				use_libuv_file_watcher = true,
 				filtered_items = {
 					-- Dotfiles are shown but dimmed; toggle with H inside the tree.
+					visible = true,
 					hide_dotfiles = false,
 					hide_gitignored = true,
 					hide_by_name = { ".git", "node_modules", ".gradle", ".idea", "build" },
@@ -495,6 +503,14 @@ require("lazy").setup({
 					find_files = {
 						-- Also hides files listed in .gitignore (build output usually is).
 						find_command = hasFd and fdFindCommand or nil,
+					},
+					live_grep = {
+						additional_args = { "--ignore-case" },
+					},
+				},
+				extensions = {
+					fzf = {
+						case_mode = "ignore_case",
 					},
 				},
 			})
