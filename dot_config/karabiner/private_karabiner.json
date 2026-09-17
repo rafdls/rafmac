@@ -4,7 +4,7 @@
             "complex_modifications": {
                 "rules": [
                     {
-                        "description": "Caps Lock as layer key (Escape when tapped alone)",
+                        "description": "Caps Lock as layer key",
                         "manipulators": [
                             {
                                 "from": {
@@ -27,7 +27,6 @@
                                         }
                                     }
                                 ],
-                                "to_if_alone": [{ "key_code": "escape" }],
                                 "type": "basic"
                             },
                             {
