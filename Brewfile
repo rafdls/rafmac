@@ -19,6 +19,8 @@ brew "glow"
 # ---- Tree sitter for nvim
 brew "tree-sitter"
 brew "tree-sitter-cli"
+# ---- zsh autocomplete
+brew "zsh-autosuggestions"
 
 # ---- Window management ----------------------------------------------------
 tap "felixkratz/formulae"

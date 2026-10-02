@@ -42,3 +42,6 @@ alias dots="chezmoi cd"
 # ---- Local overrides -----------------------------------------------------
 # Machine-specific tweaks you don't want tracked.
 [ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"
+
+# Activate zsh-autosuggestions
+source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
