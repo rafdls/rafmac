@@ -166,11 +166,22 @@ require("lazy").setup({
 		"nvim-neo-tree/neo-tree.nvim",
 		branch = "v3.x",
 		init = function()
-			vim.api.nvim_create_autocmd("VimEnter", {
-				callback = function()
-					vim.cmd("Neotree show")
-				end,
-			})
+			---@type integer
+			local argCount = vim.fn.argc(-1)
+			if argCount == 0 then
+				vim.api.nvim_create_autocmd("VimEnter", {
+					callback = function()
+						vim.cmd("Neotree show")
+					end,
+				})
+			elseif argCount == 1 then
+				-- Load early so neo-tree hijacks the netrw buffer for `nvim <dir>`.
+				---@type uv.fs_stat.result|nil
+				local argStat = vim.uv.fs_stat(vim.fn.argv(0))
+				if argStat and argStat.type == "directory" then
+					require("neo-tree")
+				end
+			end
 		end,
 		dependencies = {
 			"nvim-lua/plenary.nvim",
